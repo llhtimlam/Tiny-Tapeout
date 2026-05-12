@@ -78,8 +78,8 @@ module tt_um_llhtimlam_DistributedPong (
   );
 
   // Packet sender / receiver (ball state exchange)
-  localparam DATA_BYTES = 5;
-  localparam MAX_BYTES  = DATA_BYTES + 2;  // start + data + checksum
+  // localparam DATA_BYTES = 5;
+  // localparam MAX_BYTES  = DATA_BYTES + 2;  // start + data + checksum
   
   wire tx_send;
   wire packet_busy;
@@ -322,8 +322,8 @@ module tt_um_llhtimlam_DistributedPong (
       paddle_y       <= 10'd240;
     end else if (!pause) begin
       if (game_tick) begin
-        if (move_up && paddle_y > `PADDLE_UPPER_BOUND)    paddle_y <= paddle_y - 10'd4;
-        if (move_down && paddle_y < `PADDLE_LOWER_BOUND)  paddle_y <= paddle_y + 10'd4;
+        if (move_up && paddle_y > 10'd32)    paddle_y <= paddle_y - 10'd4;
+        if (move_down && paddle_y < 10'd449)  paddle_y <= paddle_y + 10'd4;
       end
     end
   end
@@ -379,7 +379,7 @@ module tt_um_llhtimlam_DistributedPong (
             // Ball transmission
             else if (ball_rx_valid) begin
               has_ball      <= 1'b1;
-              ball_x        <= `H_DISPLAY - rx_ball_x;
+              ball_x        <= 10'd640 - rx_ball_x;
               ball_y        <= rx_ball_y;
               vel_x         <= rx_ball_vel_x;
               vel_y         <= rx_ball_vel_y;
@@ -415,18 +415,18 @@ module tt_um_llhtimlam_DistributedPong (
                   bounce_cd <= 2'd3;
                   if (ball_at_edge) begin
                     if (ball_edge_l) begin
-                      ball_x <= `HIT_WINDOW;
+                      ball_x <= 10'd10;
                     end
                     else begin
-                      ball_x <= `RIGHT_HIT_WINDOW;
+                      ball_x <= 10'd470;
                     end
                   end
                   else begin
                     // Paddle collision
                     if (collision_paddle_l) begin
-                      ball_x <= `PADDLE_LEFT_SPAWN_X;
+                      ball_x <= 10'd330;
                     end else begin
-                      ball_x <= `PADDLE_RIGHT_SPAWN_X;
+                      ball_x <= 10'd350;
                     end
                   end
                 end else begin
@@ -437,13 +437,13 @@ module tt_um_llhtimlam_DistributedPong (
                 ball_y <= ball_y + {{6{vel_y[3]}}, vel_y};
                 // Top/bottom walls (vel_y[3] is UP, !vel_y[3] is DOWN)
                 if (bounce_cd == 2'd0) begin
-                  if (ball_y <= `HIT_WINDOW && vel_y[3]) begin // top wall
+                  if (ball_y <= 10'd10 && vel_y[3]) begin // top wall
                     vel_y <= -vel_y;
-                    ball_y <= `BALL_TOP_SPAWN_Y;
+                    ball_y <= 10'd15;
                     bounce_cd <= 2'd3;
-                  end else if (ball_y >= `BOTTOM_HIT_WINDOW && !vel_y[3]) begin // Bottom wall
+                  end else if (ball_y >= 10'd630 && !vel_y[3]) begin // Bottom wall
                     vel_y <= -vel_y;
-                    ball_y <= `BALL_BOTTOM_SPAWN_Y;
+                    ball_y <= 10'd625;
                     bounce_cd <= 2'd3;
                   end
                 end
@@ -456,23 +456,23 @@ module tt_um_llhtimlam_DistributedPong (
   end
   
   // Collision detection
-  wire collision_paddle_y = (ball_y + `BALL_RADIUS >= paddle_y - `PADDLE_HALF_HEIGHT) &&  // top hitbox
-                            (ball_y - `BALL_RADIUS <= paddle_y + `PADDLE_HALF_HEIGHT);    // bottom hitbox
-  wire collision_paddle_l = !vel_x[3]  && (ball_x >= `PADDLE_LEFT_HIT_X) && (ball_x <= `PADDLE_LEFT_EDGE);
-  wire collision_paddle_r = vel_x[3] && (ball_x <= `PADDLE_RIGHT_HIT_X) && (ball_x >= `PADDLE_RIGHT_EDGE);
+  wire collision_paddle_y = (ball_y + 10'd4 >= paddle_y - 10'd30) &&  // top hitbox
+                            (ball_y - 10'd4 <= paddle_y + 10'd30);    // bottom hitbox
+  wire collision_paddle_l = !vel_x[3]  && (ball_x >= 10'd305) && (ball_x <= 10'd315);
+  wire collision_paddle_r = vel_x[3] && (ball_x <= 10'd335) && (ball_x >= 10'd325);
 
   wire any_collision = (collision_paddle_l || collision_paddle_r) && collision_paddle_y;
   
   // Edge detection
-  wire ball_edge_l = (ball_x <= `HIT_WINDOW);
-  wire ball_edge_r = (ball_x >= `RIGHT_HIT_WINDOW && ball_x <= `RIGHT_EDGE); // Prevent out of screen
+  wire ball_edge_l = (ball_x <= 10'd10);
+  wire ball_edge_r = (ball_x >= 10'd630 && ball_x <= 10'd650); // Prevent out of screen
   wire ball_at_edge = (ball_edge_l || ball_edge_r);
   
   // Video output (TinyVGA pin mapping)
-  wire ball_px = (hpos +  `BALL_RADIUS >= ball_x && hpos <= ball_x + `BALL_RADIUS &&
-                  vpos + `BALL_RADIUS >= ball_y  && vpos < ball_y + `BALL_RADIUS);
-  wire padd_px = (hpos >= `PADDLE_LEFT_EDGE && hpos < `PADDLE_RIGHT_EDGE &&
-                  vpos >= paddle_y - `PADDLE_HALF_HEIGHT && vpos < paddle_y + `PADDLE_HALF_HEIGHT);
+  wire ball_px = (hpos +  10'd4 >= ball_x && hpos <= ball_x + 10'd4 &&
+                  vpos + 10'd4 >= ball_y  && vpos < ball_y + 10'd4);
+  wire padd_px = (hpos >= 10'd315 && hpos < 10'd325 &&
+                  vpos >= paddle_y - 10'd30 && vpos < paddle_y + 10'd30);
   wire pixel = display_on && ((has_ball && ball_px) || padd_px);
   
   assign vga_r1 = pixel;
