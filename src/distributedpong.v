@@ -18,13 +18,7 @@ module tt_um_llhtimlam_DistributedPong (
   output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
   input  wire       ena,      // always 1 when the design is powered, so you can ignore it
   input  wire       clk,      // clock
-  input  wire       rst_n,     // reset_n - low to reset
-  output wire [9:0] sdl_sx,
-  output wire [9:0] sdl_sy,
-  output wire       sdl_de,
-  output wire [7:0] sdl_r,
-  output wire [7:0] sdl_g,
-  output wire [7:0] sdl_b,
+  input  wire       rst_n     // reset_n - low to reset
 );
 
   // Input Mapping
@@ -58,6 +52,13 @@ module tt_um_llhtimlam_DistributedPong (
   // Graphic Generator
   wire        display_on;
   wire [9:0]  hpos, vpos;
+  wire [9:0] sdl_sx,
+  wire [9:0] sdl_sy,
+  wire       sdl_de,
+  wire [7:0] sdl_r,
+  wire [7:0] sdl_g,
+  wire [7:0] sdl_b,
+
   hvsync_generator vga_inst (
     .clk(clk), .reset(~rst_n),
     .hsync(vga_hsync), .vsync(vga_vsync),
