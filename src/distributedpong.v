@@ -50,7 +50,7 @@ module tt_um_llhtimlam_DistributedPong (
   assign uio_out[5] = 1'b0;
   assign uio_out[7] = 1'b0;
   // Pin 34 is not used as logic is not implemented, set output and drive low
-  assign uio_out[3:2] = 2'b00
+  assign uio_out[3:2] = 2'b00;
   
   // Graphic Generator
   wire        display_on;
