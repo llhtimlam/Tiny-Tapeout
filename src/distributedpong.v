@@ -242,6 +242,18 @@ module tt_um_llhtimlam_DistributedPong (
     end
   end
   
+  // Double Flip Flop (clk domain)
+  reg [1:0] insync_rx_sync, has_ball_rx_sync;
+
+  always @(posedge clk) begin
+    // Shift bit (Only for Raw RX)
+    insync_rx_sync <= {insync_rx_sync[0], insync_rx};
+    has_ball_rx_sync <= {has_ball_rx_sync[0], has_ball_rx};
+  end
+  
+  wire insync = insync_rx_sync[1];
+  wire has_ball_router = has_ball_rx_sync[1];
+  
   // Ball glitch logic
   // Timeout based detection
   reg [3:0] gone_timer, dup_timer;
@@ -253,12 +265,12 @@ module tt_um_llhtimlam_DistributedPong (
       dup_timer  <= 4'd0;
     end else if (!pause && game_tick) begin
       // gone timer
-      if (has_ball || has_ball_rx)
+      if (has_ball || has_ball_router)
         gone_timer <= 4'd0;
       else if (gone_timer < 4'd15)
         gone_timer <= gone_timer + 1'd1;
       // duplicated timer (both sides have ball)
-      if (has_ball && has_ball_rx) begin
+      if (has_ball && has_ball_router) begin
         if (dup_timer < 4'd15) dup_timer <= dup_timer + 1'b1;
       end else
         dup_timer <= 4'd0;
