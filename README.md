@@ -320,10 +320,7 @@ Traditional VCSELs work by turning a laser on and off as fast as possible. But s
 
 This design takes a completely different approach. It uses **evanescent coupling** between MRRs to capture the optical signal from the bus waveguide through resonance [15]. The ring is designed to be exactly the right size so that light of a specific wavelength resonates inside it, bouncing around thousands of times.
 
-<video src="2StraightWaveguide1MRR.mp4" controls width="100%">
-</video>
-
-> Evanscent coupling between straight waveguide and a microring resonator, video [source](https://www.youtube.com/watch?v=_OlW0hP9rX8) [16]
+> [Full video of Evanscent coupling between straight waveguide and a microring resonator](https://www.youtube.com/watch?v=_OlW0hP9rX8) [16]
 
 <video src="1StraightWaveguide1MRR.mp4" controls width="100%">
 </video>
