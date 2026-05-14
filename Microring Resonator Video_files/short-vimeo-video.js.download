@@ -1,0 +1,12 @@
+// See https://github.com/vimeo/player.js
+
+const iframe = document.getElementById('short-vimeo-video');
+const player = new Vimeo.Player(iframe);
+
+// Hide visual to avoid overlap when the video is not perfectly 16:9.
+player.on('play', function () {
+  const shortVimeoVideoFigure = document.getElementById(
+    'short-vimeo-video-figure'
+  );
+  shortVimeoVideoFigure.style.background = 'none';
+});

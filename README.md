@@ -4,8 +4,7 @@
 
 ### Just watch it in action!
 
-<video src="src\debug_history\checkpoint5_unstable_teleport_after_3\checkpoint5.mp4" controls width="100%">
-  Your browser does not support the video tag.
+<video src="src/debug_history/checkpoint5_unstable_teleport_after_3/checkpoint5.mp4" controls width="100%">
 </video>
 
 ### Two chips. One game. No seams.
@@ -21,15 +20,13 @@ Just like AI data centers split math across thousands of processors, these two c
 
 ## How It Works
 
-The playing field is split cleanly across two hardware chips:
+The game field is split across two separate chips.
 
-*   **Left Chip:** Controls the left half of the screen.
-*   **Right Chip:** Controls the right half of the screen.
+When the ball reaches the edge of one screen, the active chip pauses it and sends its speed and direction to the second chip.
 
+Once the second chip confirms it received the data, it draws the ball and resumes the movement.
 
-When the ball reaches the screen boundary, the active chip passes it to the other chip, which continues the game seamlessly on its half.
-
-The ball maintains the exact same direction and speed, making the screens look like one single continuous playing field.
+The first chip then deletes its copy of the ball.This handshake happens so fast that the two screens look like one single continuous playing field.
 
 | Connection State | Behavior |
 | --- | --- |
@@ -37,58 +34,52 @@ The ball maintains the exact same direction and speed, making the screens look l
 | Disconnected | Ball bounces off edge like a normal wall |
 | Reconnect | Right screen ball disappears, left screen keeps playing |
 
-The chips don't just pass the ball blindly - they do a handshake to pass the ball's position and speed through the bidirectional pin with a communication protocol.
-
-* When the ball reaches to the edge of the screen, it got detected and hold the ball in place.
-
-* It records the ball physics while holding it and send a message to another chip.
-
-* If it fails to pass, it just hold until it receive, if it got disconnected, it resumes and bounces the ball as the portal collapse.
-
-* When the another chip got the message, it sends back a roger to complete the handshake move.
-
-* It renders the ball and resumes its physics in its own screen.
-
-* After sending the ball and received a rodger, it deletes the ball as the another chip got the ball.
-
-It continues moving in the same direction at the same speed, as if the screens were actually stitched to one big continuous playing field.
-
 ## Why This Matters?
 
-This project demonstrates **distributed computing** in action—multiple computers working together on a single task.
+This project is a visual demonstration of distributed computing — multiple computers working together to solve a single problem.
 
 #### But wait, what is the difference from a normal multiplayer game?
 
-* Most multiplayer games use a **server-client model** – one central server controls everything. Server dies? Game over for everyone.
+* Most multiplayer games use a central server. If the server crashes, the game ends for everyone
+
+* This project is entirely decentralized. There is no main server. Both chips have equal power, see the exact same game world, and cooperate directly with each other.
 
 * This works like **cryptocurrency** – completely decentralized. Both chips see the same game world and agree on what's happening, stitching their screens into one giant seamless display.
 
 ### **The Core Principles**
 
-#### 1. True Decentralization
-* No master. No slave. No single point of failure.
+#### 1. No Central Leader (Be Water)
+* Both chips run the exact same code and have equal authority.
 
-* Both chips run the exact same design. Both are equals.
+* Each chip is fully capable of running its own local environment independently if the connection to its partner is lost.
 
-* **Two chips, one world. No boss. No server. Just cooperation.**
+* One chip failure never takes down the whole system.
 
 #### 2. Parallelism (Like AI Chips)
-* Instead of one chip doing all the work, two chips split the job, share results, and keep playing—even when parts fail.
+* Instead of one chip doing all the work, two chips split the job evenly.
 
-* This is the same principle powering massive AI chips: splitting work across many smaller processors to solve problems no single chip could handle alone.
+* Each chip share real-time results continuously during gameplay.
 
-#### 3. Self-Healing from Data Corruption
-But here's the real kicker: **self-healing**. 
-*   One chip dies? The other keeps playing alone. No crash. No reset. It just works. 
-*   Reconnect the dead chip? They rebuild the world and resync instantly. No manual intervention. No restart. The system heals itself.
+* This mimics the same principle powering massive AI chips: splitting work across many smaller processors to solve problems no single chip could handle alone.
 
-**That's true fault tolerance — the core of distributed computing. Pong just makes it fun to watch.**
+#### 3. Automated Self-Healing (By Democracy)
+* Disconnected chips preserve local game states internally.
+
+* Reconnection triggers automatic data exchange.
+
+* Merged states rebuild and synchronize the shared world.
+
+* System heals completely without requiring a reboot.
 
 &nbsp;
 
 ## Made Possible by Tiny Tapeout
 
 This project wouldn't exist without **Tiny Tapeout** – the platform that makes chip design accessible to everyone.
+
+<img src="ChipLayout1.png" width="100%" alt="Chip Layout">
+<img src="ChipLayout2.png" width="100%" alt="Chip Layout Zoomed">
+<img src="ChipLayout3.png" width="100%" alt="Chip Layout Angle">
 
 ### The Backstory: From Zero to Silicon
 
@@ -121,7 +112,7 @@ The author **self-taught** everything:
 
 From Distributed Computing, Network Protocols, Signal Processing, Hardware Descriptive Language (HDL), Chip Design, to Game Design. Just by pure thinking!
 
-Fun to learn by doing. Fun to invent solutions from just solving the problem, no terminology, no spoiler. **All from pure reasoning**.
+Fun to learn by doing. Fun to invent solutions from just solving the problem, no terminology, no spoiler. All from pure reasoning.
 
 ### If the author can do it, **so can you**.
 
@@ -187,9 +178,9 @@ In the next iteration, every chip has received votes from all its active connect
 |------|---------------------|----------|
 | A | B(1) + C(1) + D(1) + E(1) | **4** |
 | B | A(1) + C(2) + D(2) + E(2) | **7** |
-| C | A(1) + B(2) + D(3) + E(3) | **9** |
-| D | A(1) + B(2) + C(3) + E(4) | **10** |
-| E | A(1) + B(2) + C(3) + D(4) | **10** |
+| C | A(2) + B(2) + D(3) + E(3) | **9** |
+| D | A(3) + B(3) + C(3) + E(4) | **13** |
+| E | A(4) + B(4) + C(4) + D(4) | **16** |
 
 Each chip broadcasts its vote. All chips collect every vote and sort them:
 
@@ -198,8 +189,8 @@ Each chip broadcasts its vote. All chips collect every vote and sort them:
 | 4 | A | 0 (left edge) |
 | 7 | B | 1 |
 | 9 | C | 2 |
-| 10 | D | 3 |
-| 10 | E | 4 (right edge) |
+| 13 | D | 3 |
+| 16 | E | 4 (right edge) |
 
 *If there is a tie, both chips join together as a team with the same ID – left as an exercise for the player to figure out team formation with port configuration.*
 
@@ -231,23 +222,39 @@ However, based on the current minimal proof-of-concept code, it already occupies
 
 &nbsp;
 
-# Beyond a Silly Game: The Future of Chip-to-Chip Communication
 
-Distributed computing relies heavily on chip-to-chip communication. The current bottleneck for AI/data center chips is **power** and the **shoreline** – the physical edge where massive amounts of parallel data enter and exit the chip.
+# This Project as Distributed Computing Proof-of-Concept
 
-In this game, interconnect between chips is demonstrated through jumper wires between bidirectional pins on a PMOD socket. In real modern chips, the high-speed data paths rely on ultra-fine copper traces or optical transceivers to route data – but this has already reached its physical limit.
+This silly Pong game is more than just a game. It demonstrates the same principles that power massive AI data centers – scaled down to two tiny chips connected by jumper wires.
 
-### Where the Industry Is Today
+| Principle | AI Data Center | This Pong Game |
+|-----------|----------------|----------------|
+| **Chip-to-chip trust  (Shared State)** | Thousands of GPUs agree on massive weight updates using consensus algorithms like Raft or Paxos to prevent split-brain scenarios | Two chips negotiate who has the real ball |
+| **Fault tolerance (Graceful Degradation)** | A single failed node cannot kill a 100-day training run. Frameworks use asynchronous gradient descent or local micro-checkpoints so the rest of the cluster keeps computing | Disconnecting allows local, independent gameplay to continue. |
+| **Self-healing (Dynamic Re-Clustering)** | Modern orchestrators use automated hot-swapping and health-check loops. When a node recovers, it automatically pulls the latest state from neighbors and catches up | Reconnecting automatically rebuilds and resynchronizes the game world. |
+| **Decentralized consensus (Homogeneous Nodes)** | Scalability relies on massive arrays of identical accelerator nodes. Uniformity ensures predictable latency, deterministic math, and symmetric workloads | Both chips run identical hardware and software. No master. No slave |
 
-To minimize the physical distance between computation and communication, the industry is transitioning toward Co-Packaged Optics (CPO), which integrates optical routing components directly into the chip package.
+What scales from two chips playing Pong scales to ten thousand chips training the next AI. The physics changes. The concept stays the same.
+
+## Beyond a Silly Game: The Future of Chip-to-Chip Communication
+
+If the same principles scale, then the same bottlenecks also scale. Distributed computing relies heavily on chip-to-chip communication. The current bottleneck for AI and data center chips is **power** and the **shoreline** – the physical edge where massive amounts of parallel data enter and exit the chip.
+
+In this game, interconnect between chips is demonstrated through jumper wires between bidirectional pins on a PMOD socket. In real modern chips, high-speed data paths rely on ultra-fine copper traces or optical transceivers – but this has already reached its physical limit.
+
+## Where the Industry is Today
+
+To minimize the physical distance between computation and communication, the industry is transitioning toward **Co-Packaged Optics (CPO)**, which integrates optical routing components directly into the chip package.
 
 <img src="Co-PackagedOptics.jpg" width="100%" alt="Co-Packaging Optics Transition">
 
-*Source: "Co-Packaged Optics for our Connected Future." YouTube, uploaded by [Microelectronics], 2024. [Video]. Available: https://www.youtube.com/watch?v=Xt-GY8Pkt6g*
+> Transition between co-packaging optics, image [*source*](https://www.youtube.com/watch?v=Xt-GY8Pkt6g) [1]
+
 
 <img src="Co-PackagedOptics2.webp" width="100%" alt="Co-Packaging Optics Roadmap">
 
-*Source: Chang, Y.H. "Co-Packaged Optics (CPO) 2026-2036: Technologies, Market, and Forecasts." IDTechEx, 2025. [Report]. Available: https://www.idtechex.com/en/research-report/co-packaged-optics-cpo/1138*
+> Key trending of co-packaging optics, image [*source*](https://www.idtechex.com/en/research-report/co-packaged-optics-cpo/1138) [2]
+
 
 The architectural roadmap is clear: **Pluggable modules → ASIC → Direct Substrate Integration**
 
@@ -257,21 +264,41 @@ To achieve sub-TeraHz data rates, we must evaluate the limitations of the two do
 
 <img src="CoppervsOptics.webp" width="100%" alt="Copper vs Optics Comparison">
 
-*Source: Blackburn, C. "The 400G-Per-Lane Inflection Point: Where Copper and Optical Meet in AI Infrastructure." Astera Labs, 2024. [White paper]. Available: https://www.asteralabs.com/the-400g-per-lane-inflection-point-where-copper-and-optical-meet-in-ai-infrastructure/*
+> Data center interconnect map, image [*source*](https://www.asteralabs.com/the-400g-per-lane-inflection-point-where-copper-and-optical-meet-in-ai-infrastructure/) [3]
 
-While copper is a cost-effective and reliable solution for short-reach signaling, it hits a rigid physical wall between 400G and 800G per lane, rendering it incapable of supporting sub-TeraHz frequencies. Beyond these speeds, signal quality degrades exponentially due to the AC skin effect, As current becomes confined to this thin outer layer, microscopic surface roughness forces it to travel a longer effective path, significantly increasing AC resistance.
+## Copper
 
-Even worse, once the signal leaves the die, the plastic packaging and circuit board materials absorb high-frequency energy and turn it into heat. At sub-TeraHz speeds, the wires themselves act like a filter that kills the signal, or worse, like antennas that broadcast noise everywhere. This is why optical fibers are so attractive: light has no electrical charge, so signals don't interfere with each other. Copper simply cannot go faster without burning too much power, needing complex electronics, or turning into a radio transmitter.
+While copper is a cost-effective and reliable solution for short-reach signaling, it hits a rigid physical wall at **400G per lane** [3], rendering it incapable of supporting sub-TeraHz frequencies. **Beyond 200G per lane, signal quality degrades exponentially** due to the AC skin effect, As current becomes confined to this thin outer layer, microscopic surface roughness forces it to travel a longer effective path, significantly increasing AC resistance [4].
 
-**VCSELs** (Vertical-Cavity Surface-Emitting Lasers) are the industry standard for optical transceivers. They convert electricity to light using tiny lasers embedded in the chip. But this approach has deep flaws. While VCSELs is highly reliable within hot-swappable pluggable modules, integrating VCSELs directly onto a high-performance compute substrate introduces single-point-of-failure vulnerabilities; a single laser failure ruins the entire multi-thousand-dollar ASIC package, causing unacceptable system downtime.
+Even worse, once the signal leaves the die, the plastic packaging and circuit board materials absorb high-frequency energy and turn it into **heat**. At sub-TeraHz speeds, the wires themselves **act like a filter that kills the signal**, or worse, like antennas that broadcast noise everywhere [5]. This is why optical fibers are so attractive: **light has no electrical charge, so signals don't interfere with each other. Copper simply cannot go faster without burning too much power**, needing complex electronics, or turning into a radio transmitter.
 
-Furthermore, direct modulation of VCSELs causes severe wavelength chirp and suffers from fundamental RC parasitic bottlenecks. This restricts them to binary or basic PAM4 signaling, capping single-lane speeds well below the sub-TeraHz data rates required by next-generation links. Structurally, because VCSELs consist of alternating, planar Distributed Bragg Reflector (DBR) mirrors grown parallel to the substrate, they emit light vertically. This vertical profile prevents them from cleanly coupling into flat, planar photonic waveguides without complex, high-loss 90-degree turning mirrors. This geometric mismatch, combined with their inability to support high-density Wavelength Division Multiplexing (WDM) in a single bus waveguide, establishes VCSELs as an inadequate, short-range intermediate solution.
+## VCSEL
 
-<img src="BroadcomNPO.png" width="100%" alt="Broadcom VCSEL NPO Architecture">
+<img src="VCSEL.webp" width="100%" alt="VCSEL">
 
-*Source: Broadcom Inc. "Beyond the Copper Wall: Scaling AI Clusters with VCSEL-Based Near-Package Optics." 2024.*
+> VCSEL, img [*source*](https://www.brandnewdiode.com/news/what-is-vcsel-77140908.html) [6]
 
-If anyone wants to build the next generation of interconnect, photonics is not an option – it becomes a necessity. But VCSELs are not the answer.
+**VCSELs** (Vertical-Cavity Surface-Emitting Lasers) are the industry standard for optical transceivers. They convert electricity to light using tiny lasers embedded in the chip. But this approach has deep flaws.
+
+**While VCSELs is highly reliable within hot-swappable pluggable modules** [7], integrating VCSELs directly onto a high-performance compute substrate introduces **significant architectural vulnerabilities**. A single laser failure ruins the entire multi-thousand-dollar ASIC package, bricking the entire computation module and cause unacceptable system downtime. Because of this fatal manufacturing and deployment risk**, next-generation infrastructure roadmaps stop short of placing VCSELs directly on the processor die. Instead, **architects keep these optical arrays isolated at the near-ASIC or Near-Package Optics (NPO) boundary** [8].
+
+<img src="BroadcomNPO.jpg" width="100%" alt="Broadcom VCSEL NPO Architecture">
+
+<img src="BroadcomNPO1.png" width="100%" alt="Broadcom VCSEL NPO Architecture">
+
+> Near Packaging Optics (NPO) VCSEL, image [*source*](https://www.broadcom.com/blog/beyond-the-copper-wall-scaling-ai-clusters-with-vcsel-based-near-package-optics-npo-) [8]
+
+<img src="VCSELPrinciple.webp" width="100%" alt="VCSEL Principle">
+
+> VCSEL principle, img [source](https://inphenix.com/vcsel-vertical-cavity-surface-emitting-laser-principles-advantages-applications-and-future-trends/) [9]
+
+Furthermore, the process of direct modulation introduces severe performance bottlenecks at high operational speeds. To encode digital data, the injection current must be cycled rapidly up and down to alter the charge carrier density within the central active layer. This direct injection forces rapid electron-hole recombinations, turning the electrical pump current into an amplified optical signal via stimulated emission. However, rapidly toggling this injection current alters the internal carrier density and localized temperature of the active region, which dynamically shifts the semiconductor’s refractive index. Because the optical length of the cavity changes with the refractive index, the laser cannot maintain a pure color, resulting in severe wavelength chirp. This dynamic color shifting causes the optical pulses to spread out and blur via chromatic dispersion, rapidly degrading signal integrity over fiber runs.
+
+Worse, the physical design required to build these vertical lasers introduces a fundamental RC parasitic bottleneck that prevents fast switching. To bounce light vertically, VCSELs require dozens of alternating, planar Distributed Bragg Reflector (DBR) mirror layers grown parallel to the substrate. Forcing the modulation current to flow vertically through these numerous material interfaces creates high internal series resistance. Simultaneously, to make the laser efficient, the current must be squeezed through a microscopic oxide confinement aperture. Sandwiching this thin insulating oxide layer between highly conductive p-type and n-type semiconductor regions creates a parallel-plate structure that traps a massive amount of parasitic capacitance.
+
+In short, VCSEL suffer **severe wavelength chirp** and **RC parasitic bottlenecks** from their fundamental physics [10], forming a structural low-pass filter that rounds off sharp digital pulses. This restricts them to binary or basic PAM4 signaling, capping single-lane speeds in **200Gb/s PAM4** [11], well below the sub-TeraHz data rates required by next-generation links. Structurally, because VCSELs consist of alternating, planar DBR mirrors grown parallel to the substrate, they emit light vertically. This vertical profile prevents them from cleanly coupling into flat, planar photonic waveguides without complex, high-loss 90-degree turning mirrors. This geometric mismatch, combined with their **inability to support high-density Wavelength Division Multiplexing (WDM) in a single bus waveguide** [12], establishes VCSELs as an **inadequate, short range solution**.
+
+**If anyone wants to build the next generation of interconnect, photonics is not an option – it becomes a necessity. But VCSELs are not the answer.**
 
 # The Author's Research
 
@@ -281,25 +308,50 @@ Instead of embedding lasers inside the chip, my research moves the light source 
 
 <img src="MicroringResonatorOpticalTransceiver.png" width="100%" alt="Microring Resonator Optical Transceiver Design">
 
-*Source: Saiham, D., Wu, D., & Rahman, S. "Leveraging photonic interconnects for scalable and efficient fully homomorphic encryption." arXiv preprint arXiv:2506.12962, Jun. 2025. DOI: 10.48550/arXiv.2506.12962. Available: https://arxiv.org/abs/2506.12962*
+> Author proposed design, img [source](https://arxiv.org/abs/2506.12962) [13]
 
-#### The Physics: Why Pockels Effect Beats Laser Modulation
+### The Physics: Why Pockels Effect Beats Laser Modulation
 
 Traditional VCSELs work by turning a laser on and off as fast as possible. But switching a laser on and off has hard limits – it is slow, generates heat, and eventually cannot go any faster.
 
-This design takes a completely different approach. It uses **evanescent coupling** between MRRs to capture the optical signal from the bus waveguide through resonance. The ring is designed to be exactly the right size so that light of a specific wavelength resonates inside it, bouncing around thousands of times.
+<img src="EvanscentCoupling.jpg" width="100%" alt="Evanscent Coupling">
+
+> Evanscent coupling, video [source](https://www.youtube.com/watch?v=4O-1CJx4s4w) [14]
+
+This design takes a completely different approach. It uses **evanescent coupling** between MRRs to capture the optical signal from the bus waveguide through resonance [15]. The ring is designed to be exactly the right size so that light of a specific wavelength resonates inside it, bouncing around thousands of times.
+
+<video src="2StraightWaveguide1MRR.mp4" controls width="100%">
+</video>
+
+> Evanscent coupling between straight waveguide and a microring resonator, video [source](https://www.youtube.com/watch?v=_OlW0hP9rX8) [16]
+
+<video src="1StraightWaveguide1MRR.mp4" controls width="100%">
+</video>
+
+> Resonance between straight waveguide and a microring resonator, video [source](https://www.comsol.com/blogs/calculating-the-spectral-properties-of-an-optical-ring-resonator) [17]
+
 
 When the ring resonates, it traps that wavelength. Light does not pass through the bus waveguide, representing an "off" state.
 
-To modulate this signal, a localized voltage is applied across the ring's non-linear optical cladding. This triggers the linear electro-optic (Pockels) effect, which instantaneously alters the material's refractive index. Changing the refractive index alters the effective optical path length of the ring. This shifts the microring's resonance frequency away from the laser’s wavelength, breaking the coupling condition. The light no longer enters the ring and instead travels unhindered down the bus waveguide — representing an "on" state.
+To modulate this signal, a localized voltage is applied across the ring's non-linear optical cladding [19]. This triggers the linear electro-optic (Pockels) effect [20], which instantaneously alters the material's refractive index. Changing the refractive index alters the effective optical path length of the ring. This shifts the microring's resonance frequency away from the laser’s wavelength, breaking the coupling condition. The light no longer enters the ring and instead travels unhindered down the bus waveguide — representing an "on" state.
+
+<img src="MicroringResonatorLogic.webp" width="100%" alt="Microring Resonator Logic">
+
+> Toggling optical channel signal with microring resonator, img [source](https://ayarlabs.com/glossary/micro-ring-resonators/) [21]
 
 The key is that this voltage-driven index change happens in **picoseconds** – a thousand times faster than a nanosecond. Pure electrical control of light, ready to be exploited to develop the next generation of optical transceivers.
 
 This is the breakthrough that enables sub‑TeraHz modulation.
 
-#### The Design: External Frequency Comb + MRR Array
+### The Design: External Frequency Comb + MRR Array
 
 Instead of embedding lasers on-chip, a single external frequency comb produces many wavelengths simultaneously. Here is how it works.
+
+
+<video src="MicroringResonatorVideo.mp4" controls width="100%">
+</video>
+
+> Laser injection to chip scale MRR, video [source](https://actu.epfl.ch/news/a-micro-ring-resonator-with-big-potential-5/) [22]
 
 1. Injection: the frequency comb injects a C‑band (capable of long-distance transfer) with regularly spaced spectral lines into a single bus waveguide via photonic wirebonding. Each discrete spectral line serves as an independent data channel.
 
@@ -309,9 +361,9 @@ Instead of embedding lasers on-chip, a single external frequency comb produces m
 
 4. Demodulation: A matching receiver array of MRRs, paired with integrated high-speed photodetectors, filters and reads each wavelength channel in parallel.
 
-**By leveraging the Pockels effect, the resonance frequency shifts deliberately to mismatch the optical channel wavelength – allowing transmission. This enables signals to be densely packed within a single bus waveguide, unlocking parallel, low-latency data routing across chips, boards, and racks.**
+By leveraging the Pockels effect, the resonance frequency shifts deliberately to mismatch the optical channel wavelength – allowing transmission. This enables signals to be densely packed within a single bus waveguide, unlocking parallel, low-latency data routing across chips, boards, and racks.
 
-#### The Materials: TFLN and BTO
+### The Materials: TFLN and BTO
 
 For the photonic layer of the MRR array, the industry have been developing two kind of nonlinear optical materials.
 
@@ -319,13 +371,17 @@ For the photonic layer of the MRR array, the industry have been developing two k
 
 **Barium Titanate Oxide (BTO)** While still primarily in the research and development phase, BTO offers a significantly higher Pockels coefficient than TFLN, delivering unmatched energy efficiency for electro-optic conversion.
 
-Both are excellent candidates for sub‑THz communication. The fabrication challenge, specifically etching uniformity and high-quality thin-film deposition remain persistent. But that is the opportunity, not the obstacle.
+Both are excellent candidates for sub‑THz communication. The fabrication challenge, specifically etching uniformity and high-quality thin-film deposition remain persistent [22]. But that is the opportunity, not the obstacle.
 
-#### Integration: Photonic Layer on CMOS BEOL
+### Integration: Photonic Layer on CMOS BEOL
 
 The photonic layer is wafer‑bonded directly to the Back‑End‑of‑Line (BEOL) of the CMOS driver/receiver die. This integration achieves several things.
 
 The non-linear photonic layer is wafer-bonded directly to the Back-End-of-Line (BEOL) layers of the CMOS driver and receiver die. This monolithic integration achieves several critical design goals:
+
+<img src="EPIC.jpeg" width="100%" alt="Electronic and Photonic Integrated Circuit">
+
+> Monolithic integration of Electronic and Photonic Integrated Circuit, img [source](https://photonicsreport.com/blog/the-fascinating-relationship-between-photonics-and-electronics/) [23]
 
 Thermal Isolation: Thermal energy from the primary light source never enters the compute die, confining on-chip thermal dissipation strictly to the CMOS logic itself—which is further mitigated by TFLN’s high thermal conductivity.
 
@@ -335,35 +391,11 @@ Elimination of Single-Point Failures: Shifting the active laser cavities off-chi
 
 True Optical Parallelism: Multiple optical channels signal propagate simultaneously through a single waveguide. Because the routing architecture relies entirely on passive evanescent coupling inside a microring rather than destructive electrical manipulation, the multi-wavelength bus waveguide can be routed freely across the system architecture without significant risk of signal degradation or of material breakdown.
 
-### The Vision
+## The Vision
 
 This design delivers **superior communication infrastructure** compared to VCSEL and pure electrical signaling.
 
 A vertically integrated **Electronic‑Photonic Integrated Circuit (EPIC)** fab is a worthwhile investment in today's technology landscape. These architectures are gaining increasing attention in both academia and industry – and they represent the only path forward for sub‑TeraHz data transfer.
-
-**From jumper wires to light. From one chip to many. The next step is ours to build.**
-
-### Author's Current Task list
-
-| Task | Status |
-|------|--------|
-| Athermal MRR Array Simulation and Optimization | On Hold |
-| 7nm CMOS FinFET Process CAD Modeling | On Hold |
-| DRAM Process CAD Modeling (Co-Developing In-Game DRAM Process Recipes for [SuperSymmetry](https://susymodpack.substack.com/p/3-circuit-overhaul)) | Work in Progress |
-| Complete Circuit Design for the EPIC | On Hold |
-| Develop Minimal Viable Layout Schematics of the EPIC | On Hold |
-| [**2026 Chipathon**](https://sscs.ieee.org/technical-committees/tc-ose/sscs-pico-design-contest/) | Current next task |
-
-### This Project as Distributed Computing Proof-of-Concept
-
-This silly Pong game is more than just a game. It demonstrates:
-
-- **Chip-to-chip trust** – Two identical chips negotiating who is left and right
-- **Fault tolerance** – One chip dies? The other keeps playing
-- **Self-healing** – Reconnect and they rebuild the world automatically
-- **Decentralized consensus** – No master, no slave. Just equals cooperating.
-
-The same principles scale from two chips playing Pong to thousands of chips in an AI data center. The math changes. The concept stays the same.
 
 ---
 
@@ -375,30 +407,67 @@ This silly Pong game? It's a stupid prototype. A desperate attempt to prove that
 
 **If you're interested – even just curious – I'd love to chat.**
 Connect with me on [LinkedIn](https://www.linkedin.com/in/timllh/).
+
+#### Author's Current Task list
+
+| Task | Status |
+|------|--------|
+| Athermal MRR Array Simulation and Optimization | On Hold |
+| 7nm CMOS FinFET Process CAD Modeling | On Hold |
+| DRAM Process CAD Modeling (Co-Developing In-Game DRAM Process Recipes for [SuperSymmetry](https://susymodpack.substack.com/p/3-circuit-overhaul)) | Work in Progress |
+| Complete Circuit Design for the EPIC | On Hold |
+| Develop Minimal Viable Layout Schematics of the EPIC | On Hold |
+| [**2026 Chipathon**](https://sscs.ieee.org/technical-committees/tc-ose/sscs-pico-design-contest/) | Current next task |
+
 ---
 
 ### References
 
-1. Broadcom Inc. (2024). Beyond the Copper Wall: Scaling AI Clusters with VCSEL-Based Near-Package Optics (NPO). *Broadcom Blog*. https://www.broadcom.com/blog/beyond-the-copper-wall-scaling-ai-clusters-with-vcsel-based-near-package-optics-npo
+1. "Co-Packaged Optics for our Connected Future," YouTube, 2024. [Online Video]. Available: [Youtube](https://www.youtube.com/watch?v=Xt-GY8Pkt6g)
 
-2. Blackburn, C. (2024). The 400G-Per-Lane Inflection Point: Where Copper and Optical Meet in AI Infrastructure. *Astera Labs*. https://www.asteralabs.com/the-400g-per-lane-inflection-point-where-copper-and-optical-meet-in-ai-infrastructure/
+2. Y. H. Chang, "Co-Packaged Optics (CPO) 2026-2036: Technologies, Market, and Forecasts," IDTechEx, Research Report, 2025. [Online]. Available: [IDTechEx](https://www.idtechex.com/en/research-report/co-packaged-optics-cpo/1138)
 
-3. Chang, Y.H. (2025). Co-Packaged Optics (CPO) 2026-2036: Technologies, Market, and Forecasts. *IDTechEx*. https://www.idtechex.com/en/research-report/co-packaged-optics-cpo/1138
+3. C. Blackburn, "The 400G-Per-Lane Inflection Point: Where Copper and Optical Meet in AI Infrastructure," Astera Labs, Tech. Rep., 2024. [Online]. Available: [Astera Labs](https://www.asteralabs.com/the-400g-per-lane-inflection-point-where-copper-and-optical-meet-in-ai-infrastructure/)
 
-4. Co-Packaged Optics for our Connected Future. (2024). YouTube. https://www.youtube.com/watch?v=Xt-GY8Pkt6g
+4. F. Alawneh, "Futuring Interconnect Infrastructure for AI: RF Transmission over Plastic Cable Surpasses Copper and Optics at Terabit Scale," Signal Integrity Journal, June 2024. [Online]. Available: [Signal Integrity Journal](https://www.signalintegrityjournal.com/articles/4011-futuring-interconnect-infrastructure-for-ai-rf-transmission-over-plastic-cable-surpasses-copper-and-optics-at-terabit-scale).
 
-5. Saiham, D., Wu, D., & Rahman, S. (2025). Leveraging photonic interconnects for scalable and efficient fully homomorphic encryption. *arXiv preprint arXiv:2506.12962*. https://arxiv.org/abs/2506.12962
+5. X. Zhou, L. Zhang, and T. Wang, "Co-Design of Thermal and RF Performance in a Stacked Sub-THz Antenna-in-Package With Embedded Endfire Arrays," IEEE Transactions on Components, Packaging and Manufacturing Technology, vol. 16, no. 2, pp. 210-219, Feb. 2026. doi: [10.1109/TMTT.2025.3619939](https://doi.org/10.1109/TMTT.2025.3619939)
 
-### Why This Matters for Pong
+6. "What Is VCSEL?," Hangzhou Brandnew Technology Co., Ltd., Apr. 2024. [Online]. Available: [Hangzhou Brandnew Technology](https://www.brandnewdiode.com/news/what-is-vcsel-77140908.html)
 
-This tiny Pong game – two chips passing a ball across jumper wires – is a **microcosm** of the same challenge facing the largest AI data centers. The same principles apply:
+7. "The VCSEL Advantage: Increased Power, Efficiency, and Reliability," Photonics Spectra, Photonics Media, 2025. [Online]. Available: [Photonics Media](https://www.photonics.com/Articles/The-VCSEL-Advantage-Increased-Power-Efficiency/a25102)
 
-- Chip-to-chip trust
-- Distributed consensus
-- Bandwidth limits
-- Fault tolerance
+8. Broadcom Inc., "Beyond the Copper Wall: Scaling AI Clusters with VCSEL-Based Near-Package Optics (NPO)," Broadcom Blog, 2024. [Online]. Available: [Broadcom](https://www.broadcom.com/blog/beyond-the-copper-wall-scaling-ai-clusters-with-vcsel-based-near-package-optics-npo-)
 
-**What started as a game becomes a prototype for the future of computing.**
+9. "VCSEL Principles and Future Trends Explained," InPhenix Knowledge Base, Dec. 2025. [Online]. Available: [InPhenix Knowledge Base](https://inphenix.com/vcsel-vertical-cavity-surface-emitting-laser-principles-advantages-applications-and-future-trends/)
+
+10. Irrational Analysis, "Practical Datacom Lasers," Irrational Analysis Substack, Jan. 24, 2026. [Online]. Available: [Irrational Analysis](https://irrationalanalysis.substack.com/p/practical-datacom-lasers)
+
+11. F. Koyama, H. Ibrahim, A. Hassan, and X. Gu, "Pushing the limits of VCSEL technology: >200 Gb/s 1060-nm single-mode VCSEL array for next-generation SMF/MMF interconnects," in Proc. SPIE PC13911, Vertical-Cavity Surface-Emitting Lasers XXX, PC1391107, Mar. 2026. doi: [10.1117/12.3089572](https://doi.org/10.1117/12.3089572)
+
+12. M. Karppinen, "VCSEL Techniques for Wavelength-Multiplexed Optical Interconnects," Chalmers University of Technology, Gothenburg, Sweden, Tech. Rep. 511930, 2024. [Online]. Available: [Chalmers University of Technology](https://research.chalmers.se/publication/511930)
+
+13. D. Saiham, D. Wu, and S. Rahman, "Leveraging photonic interconnects for scalable and efficient fully homomorphic encryption," arXiv preprint arXiv:2506.12962, 2025. [Online]. Available: [arXiv](https://arxiv.org/abs/2506.12962)
+
+14. "Silicon Photonics Micro-Ring Resonators," YouTube, 2021. [Online Video]. Available: [Youtube](https://www.youtube.com/watch?v=4O-1CJx4s4w)
+
+15. D. G. Rabus, Integrated Ring Resonators: The Compendium, Springer Series in Optical Sciences, vol. 127. Berlin, Heidelberg: Springer, 2007. [Online]. Available: [Springer](https://link.springer.com/book/10.1007/978-3-540-68788-7)
+
+16. "Ring Resonator Simulated in Lumerical MODE Solutions' Propagator," YouTube, 2021. [Online Video]. Available: [Youtube](https://www.youtube.com/watch?v=_OlW0hP9rX8)
+
+17. S. Obeidat, "Calculating the Spectral Properties of an Optical Ring Resonator," COMSOL Blog, Jan. 30, 2024. [Online]. Available: [COMSOL Blog](https://www.comsol.com/blogs/calculating-the-spectral-properties-of-an-optical-ring-resonator)
+
+18. J. Ling, Y. He, R. Luo, M. Li, H. Liang, and Q. Lin, "Athermal lithium niobate microresonator," Optics Express, vol. 28, no. 15, pp. 21682-21691, Jul. 2020. [Online]. Available: doi: [10.1364/OE.398363](https://doi.org/10.1364/OE.398363)
+
+19. Y. Li, M. Sun, T. Miao, and J. Chen, "Towards High-Performance Pockels Effect-Based Modulators: Review and Projections," Micromachines, vol. 15, no. 7, p. 865, Jun. 2024. [Online]. Available: doi : [10.3390/mi15070865](https://doi.org/10.3390/mi15070865)
+
+20. "Micro-Ring Resonators (MRRs)," Ayar Labs Glossary, 2026. [Online]. Available: [Ayar Labs](https://ayarlabs.com/glossary/micro-ring-resonators/)
+
+21. S. Benmachiche, "A micro-ring resonator with big potential," EPFL News, Apr. 08, 2026. [Online]. Available: [EPFL News](https://actu.epfl.ch/news/a-micro-ring-resonator-with-big-potential-5/)
+
+22. Y. Wen, H. Chen, Z. Wu, W. Li, and Y. Zhang, "Fabrication and photonic applications of Si-integrated LiNbO3 and BaTiO3 ferroelectric thin films," APL Materials, vol. 12, no. 2, p. 020601, Feb. 2024. doi: 10.1063/5.0192018. [Online]. Available: [APL Materials](https://pubs.aip.org/aip/apm/article/12/2/020601/3262490/Fabrication-and-photonic-applications-of-Si)
+
+23. "The fascinating relationship between photonics and electronics: Photonic and electronic circuits," Photonics Report, Dec. 17, 2024. [Online]. Available: [Photonics Report](https://photonicsreport.com/blog/the-fascinating-relationship-between-photonics-and-electronics/)
 
 ## What is Tiny Tapeout?
 

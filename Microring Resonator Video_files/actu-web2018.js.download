@@ -1,0 +1,196 @@
+jQuery(function ($) {
+  // Resize news content images if width bigger than container
+  function resizeNewsContentImages () {
+    var column_width = $('#news-content-text').width();
+    var images = $('#news-content-text img');
+
+    for (var i = 0; i < images.length; i++) {
+      image = $(images[i]);
+      if (image.width() >= column_width) {
+        image.addClass('news-content-img-fluid');
+      } else {
+        image.removeClass('news-content-img-fluid');
+      }
+    }
+  }
+  if ($('#news-content-text').length > 0) {
+    resizeNewsContentImages();
+    window.addEventListener('resize', resizeNewsContentImages, false);
+  }
+
+  function iframeWrapNeeded (iframeSrc) {
+    return iframeSrc.indexOf('www.youtube.com') >= 0 ||
+      iframeSrc.indexOf('player.vimeo.com') >= 0 ||
+      iframeSrc.indexOf('api.cast.switch.ch') >= 0;
+  }
+
+  function wrapIframe () {
+    $('iframe').each(function () {
+      if ($(this).closest('#edit_news').length) {
+        return;
+      }
+
+      var iframeSrc = $(this).attr('src');
+      if (iframeSrc && iframeWrapNeeded(iframeSrc)) {
+        var $div = $('<div>').attr(
+          'class',
+          'embed-responsive embed-responsive-16by9'
+        );
+        $(this).wrap($div);
+      }
+    });
+  }
+
+  /*
+   * All external links in <main> must be opened in a new window
+   * Ignore 127.0.0.1 and *.epfl.ch
+   */
+  function openExternalLinkInNewWindow () {
+    var links = $('main a[href^=http]');
+    for (var i = 0; i < links.length; i++) {
+      var a = document.createElement('a');
+      a.href = links[i];
+      var hostname = a.hostname;
+      if (hostname.indexOf('epfl.ch') == -1 &&
+        hostname.indexOf('127.0.0.1') == -1) {
+        $(links[i]).attr('target', '_blank').attr('rel', 'noopener');
+      }
+    }
+  }
+
+  $('.change_language').click(function () {
+    var data_url = $(this).attr('data-url');
+    if (typeof data_url !== typeof undefined && data_url !== false) {
+      $('#change_lang_form').attr('action', data_url);
+    }
+    ln = $(this).attr('lang');
+    $('#selected_lang').val(ln);
+    $('#change_lang_form').submit();
+    return true;
+  });
+
+  $('.auto-extend').each(function () {
+    var el = $(this);
+
+    var width = el.parents().width();
+    el.siblings().not('legend').each(function () {
+      width -= $(this).outerWidth(true);
+    });
+
+    var margin = el.outerWidth(true) - el.width();
+    el.width(width - margin);
+  });
+
+  // Activate bulk action buttons when at least one item is checked
+  if ($('.bulk-checkbox').length > 0 && $('.active-on-checkbox').length > 0) {
+    function updateBulkButtons() {
+      const hasChecked = $('.bulk-checkbox:checked').length > 0;
+      $('.active-on-checkbox').prop('disabled', !hasChecked);
+    }
+    updateBulkButtons();
+    $('.bulk-checkbox').on('change', updateBulkButtons);
+  }
+
+  $('#search-form :radio').change(function () {
+    $('#search-form').submit();
+  });
+
+  $('#switch_channel :radio').change(function () {
+    $('#switch_channel form').submit();
+  });
+
+  // Reorder news
+  if ($.ui && $.ui.sortable) {
+    $('#sortable').sortable({ handle: '.grab' })
+  }
+
+  $('#translation-url').click(function () {
+    $(this).select();
+  });
+
+  openExternalLinkInNewWindow();
+  wrapIframe();
+
+  // manage checkboxes of channels in preview news
+  $('input[name$="broadcast_channels"]').change(function () {
+    var publish_btn = null;
+    if ($('button[name$="delay"]').length) {
+      publish_btn = $('button[name$="delay"]');
+    } else {
+      publish_btn = $('button[name$="publish"]');
+    }
+    var number_of_checked_enabled = $('input[name$="broadcast_channels"]:checked').not(':disabled').length;
+    publish_btn.prop('disabled', number_of_checked_enabled == 0);
+  });
+
+  $('#confirm-publish').on('click', function () {
+    var channels = [];
+    $('#channels-to-broadcast').children('div').each(function () {
+      if ($(this).find('input').is(':checked')) {
+        channels.push($(this).find('label').text());
+      }
+    });
+    $('#confirm-publish-channels').empty();
+    var i;
+    for (i = 0; i < channels.length; i++) {
+      $('#confirm-publish-channels').append('<li>' + channels[i] + '</li>');
+    }
+    if (channels.length > 1) {
+      $('#confirm-publish-channel-message').hide();
+      $('#confirm-publish-channels-message').show();
+    } else {
+      $('#confirm-publish-channel-message').show();
+      $('#confirm-publish-channels-message').hide();
+    }
+
+    $('#confirm_submit').modal({
+      show: true
+    });
+  });
+
+  /*
+   * Manage select channel for subscriptions
+   */
+
+  var enable_disable_languages_from_channel = function () {
+    $.ajax({
+      method: "POST",
+      url: "/ajax/add-subscription-channel/",
+      data: {
+        channel: $('#id_subscription_channels').find(":selected").val(),
+      },
+      dataType: "json",
+      success: function(data) {
+        $('input[name^="languages"]').each(function() {
+          $(this).prop('checked', false);
+          $(this.parentNode).removeClass('disabled');
+          if ((data.indexOf(this.value) == -1) && (data.indexOf(this.value.toUpperCase()) == -1)) {
+            $(this.parentNode).addClass('disabled');
+          }
+          // uppercase language means 'this is the current language'
+          if (data.indexOf(this.value.toUpperCase()) != -1) {
+            $(this).prop('checked', true);
+          }
+        });
+      }
+    });
+  };
+
+  if ($('#id_subscription_channels').length) {
+    enable_disable_languages_from_channel();
+  }
+  $('#id_subscription_channels').change(enable_disable_languages_from_channel);
+
+
+  /*
+   * Manage "import & publish" news modal
+  */
+  $('#import_and_publish_news_modal').on('show.bs.modal', function(e) {
+    var newsId = $(e.relatedTarget).data('news-id');
+    var channelId = $(e.relatedTarget).data('channel-id');
+    $(e.currentTarget).find('#import_and_publish_news_modal_yes').attr(
+      "href",
+      "/news/" + newsId + "/copy-to-channel/" + channelId + "/"
+    );
+  });
+});
