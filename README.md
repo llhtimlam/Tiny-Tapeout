@@ -32,7 +32,7 @@ When the ball reaches the edge of one screen, the active chip pauses it and send
 
 Once the second chip confirms it received the data, it draws the ball and resumes the movement.
 
-The first chip then deletes its copy of the ball.This handshake happens so fast that the two screens look like one single continuous playing field.
+The first chip then deletes its copy of the ball. This handshake happens so fast that the two screens look like one single continuous playing field.
 
 | Connection State | Behavior |
 | --- | --- |
@@ -64,7 +64,7 @@ This project is a visual demonstration of distributed computing — multiple com
 #### 2. Parallelism (Like AI Chips)
 * Instead of one chip doing all the work, two chips split the job evenly.
 
-* Each chip share real-time results continuously during gameplay.
+* Each chip shares real-time results. continuously during gameplay.
 
 * This mimics the same principle powering massive AI chips: splitting work across many smaller processors to solve problems no single chip could handle alone.
 
@@ -208,11 +208,13 @@ Now every chip knows:
 2. What its neighbors are connected to
 3. Its position in the local network based on the voted sum
 
-When a chip gets disconnected, it can simply repeat the voting process and re-identify itself and its local network following the connection rule as a global source of truth, or just reseated from its missing slot of the local network map for a simplier route.
+When a chip gets disconnected, it can simply repeat the voting process and re-identify itself from its neighbour local network following the connection rule as a global source of truth, or just reseated from its missing slot of the local network map for a simpler route.
 
 Player could also optimize all of the voting combination to fit more than 5 chips, left as a logic exercise for the player if they have more than 5 players. The author would be impressed if anyone manages to gather so many people to play it.
 
 **Add more chips. Build a wall. Make a stadium. The game grows with your hardware.**
+
+The voting mechanism described above is not just a game mechanic — it is a miniature version of how distributed consensus powers real-world systems: missile flight control, particle-related processes, and AI data centers. The same principles of trust, verification, and redundancy apply whether you are passing a ball or a payload.
 
 ## 2. ICBM Mechanics
 
@@ -224,14 +226,14 @@ Portals spawn chaotically, indicated by color for connected pairs, where ICBMs a
 
 If an ICBM is destroyed by another ICBM not originating from that space, it triggers a deadly cross beam (parallel and perpendicular from the destroyed ICBM's trajectory and center), posing danger and penalty to the player. If two ICBMs not originating from local space collide, they form 2 deadly crosses based on the collision direction – introducing chaotic dynamics where players choose between attack and defense. If a player is destroyed, all ICBMs originated by that player disappear until the last man stands.
 
-However, based on the current minimal proof-of-concept code, it already occupies 2 tile spaces from Tiny Tapeout. Implementation is unlikely – the author believes this is enough to demonstrate the distributed computing concept.
+However, even this minimal proof-of-concept already occupies two tile spaces on Tiny Tapeout. While full ICBM mechanics are unlikely to be implemented, the core system already demonstrates the fundamental distributed computing concept that powers massive AI clusters.
 
 &nbsp;
 
 
 # This Project as Distributed Computing Proof-of-Concept
 
-This silly Pong game is more than just a game. It demonstrates the same principles that power massive AI data centers – scaled down to two tiny chips connected by jumper wires.
+This seemingly simple Pong game is more than just a game. It demonstrates the same principles that drive massive AI data centers – scaled down to two tiny chips connected by jumper wires.
 
 | Principle | AI Data Center | This Pong Game |
 |-----------|----------------|----------------|
@@ -240,17 +242,19 @@ This silly Pong game is more than just a game. It demonstrates the same principl
 | **Self-healing (Dynamic Re-Clustering)** | Modern orchestrators use automated hot-swapping and health-check loops. When a node recovers, it automatically pulls the latest state from neighbors and catches up | Reconnecting automatically rebuilds and resynchronizes the game world. |
 | **Decentralized consensus (Homogeneous Nodes)** | Scalability relies on massive arrays of identical accelerator nodes. Uniformity ensures predictable latency, deterministic math, and symmetric workloads | Both chips run identical hardware and software. No master. No slave |
 
-What scales from two chips playing Pong scales to ten thousand chips training the next AI. The physics changes. The concept stays the same.
+Scaling from two chips playing Pong to ten thousand chips training AI illustrates the same concept: the physics may change, but the underlying principles remain constant.
+
+However, scaling software is only half the challenge. The movement of data between chips introduces the true bottlenecks.
 
 ## Beyond a Silly Game: The Future of Chip-to-Chip Communication
 
-If the same principles scale, then the same bottlenecks also scale. Distributed computing relies heavily on chip-to-chip communication. The current bottleneck for AI and data center chips is **power** and the **shoreline** – the physical edge where massive amounts of parallel data enter and exit the chip.
+Distributed computing relies heavily on chip-to-chip communication. In AI and data center chips, the main constraints are **power** and the **shoreline** — the physical edge where massive amounts of parallel data enter and exit the chip.
 
-In this game, interconnect between chips is demonstrated through jumper wires between bidirectional pins on a PMOD socket. In real modern chips, high-speed data paths rely on ultra-fine copper traces or optical transceivers – but this has already reached its physical limit.
+In this demo, the interconnect is simply jumper wires between bidirectional pins on a PMOD socket. Modern chips, however, rely on ultra-fine copper traces or optical transceivers, which are already approaching their physical limits.
 
 ## Where the Industry is Today
 
-To minimize the physical distance between computation and communication, the industry is transitioning toward **Co-Packaged Optics (CPO)**, which integrates optical routing components directly into the chip package.
+To overcome these constraints, the industry is transitioning toward **Co-Packaged Optics (CPO)**, which integrates optical routing components directly into the chip package — minimizing the physical distance between computation and communication.
 
 <img src="Co-PackagedOptics.jpg" width="100%" alt="Co-Packaging Optics Transition">
 
